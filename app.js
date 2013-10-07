@@ -3,6 +3,7 @@ var rootRef = new Firebase("fb-tic-tac-toe.firebaseio.com/");
 var gameRef = rootRef.child('games');
 var userRef = rootRef.child('users');
 var username = null;
+var userPhoto = null;
 
 //Firebase Simple Login with Facebook
     var auth = new FirebaseSimpleLogin(rootRef, function(error, user) {
@@ -14,18 +15,19 @@ var username = null;
             //user authenticated with Firebase
             console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
             username = user.displayName;
+            userPhoto = "http://graph.facebook.com/" + user.id + "/picture";
+            console.log(userPhoto);
             $('<div/>').text("Signed in as ").append(
                 $('<a>').attr({'href': 'https://facebook.com/' + user.id, 'class': 'facebookLink', 'target': '_blank'}).text(username)
                 ).appendTo($('#signed-in'));
             $('#login-btn').css("visibility", "hidden");
             $('#signed-in').css({"visibility": "visible", "display": "inline-block"});
-            $('#logout').css("visibility", "visible");
         } else {
             //user is logged out
         }
     });
 
-    //Log in button
+   //Log in button
    var loginButton = $('#login-btn');
    loginButton.click(function (e) {
         e.preventDefault();
@@ -35,16 +37,11 @@ var username = null;
         });
    });
 
-   //Log out button
-   var logoutButton = $('#logout');
-   logoutButton.click(function (e) {
-        e.preventDefault();
-        loginButton.css("visibility", "visible");
-        logoutButton.css("visibility", "hidden");
-        $('#signed-in').css({"display": "none", "visibility": "hidden"});
-        auth.logout();
-        username = null;
-    });
+   //List all games
+   gameRef.on('child_added', function(e) {
+    var game = e.val();
+    $('<a>').attr({'href':'/game.html?gameId=' + e.name(), 'id':game['gameId'], 'class': 'gameLink'}).text(game['name']).appendTo($('#currentGames'));  
+   })
 
    //Create new game
    $('#new-game').click(function (e) {
@@ -53,9 +50,9 @@ var username = null;
           var gameName = $('#gameName').val();
           $('#gameName').val('');
           var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName, "winner": false});
-          $('<a>').attr({'href':'sararob.github.io/game.html?gameId=' + game.name(), 'id':game.name()}).text(gameName).appendTo($('#games'));
+          //$('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name(), 'class': 'gameLink'}).text(gameName).prependTo($('#currentGames'));
           var gameId = game.name();
-
+          gameRef.child(gameId).child('gameId').set(gameId);
           var currentGameRef = gameRef.child(gameId);
         } else {
           alert("You must sign in with Facebook to create a game!");
@@ -63,41 +60,41 @@ var username = null;
 
    });
 
-   //Game page logic
+   //INDIVIDUAL GAME PAGE
 
-   //Get game namne
+   //Get game name from URL
     var id = getURLParameter('gameId');
     function getURLParameter(name) {
         return decodeURI(
             (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
         );
     };
+
+    //Create board for each game
     var thisGame = gameRef.child(id);
     thisGame.once('value', function(snapshot) {
       var board = snapshot.val();
-
       player1Ref = thisGame.child('player1');
       player2Ref = thisGame.child('player2');
 
-      //Create board
       $('<div/>').text(board['name']).appendTo($('#gameTitle'));
       $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
-      $('<tr/>').attr({'id': id + "row1"}).appendTo($('#board' + id));
-      $('<td/>').attr({'id': id + "1", 'class':'tile'}).text(board[1]).appendTo($('#' + id + "row1"));
-      $('<td/>').attr({'id': id + "2", 'class':'tile'}).text(board[2]).appendTo($('#' + id + "row1"));
-      $('<td/>').attr({'id': id + "3", 'class':'tile'}).text(board[3]).appendTo($('#' + id + "row1"));
-      $('<tr/>').attr({'id': id + "row2"}).appendTo($('#board' + id));
-      $('<td/>').attr({'id': id + "4", 'class':'tile'}).text(board[4]).appendTo($('#' + id + "row2"));
-      $('<td/>').attr({'id': id + "5", 'class':'tile'}).text(board[5]).appendTo($('#' + id + "row2"));
-      $('<td/>').attr({'id': id + "6", 'class':'tile'}).text(board[6]).appendTo($('#' + id + "row2"));
-      $('<tr/>').attr({'id': id + "row3"}).appendTo($('#board' + id));
-      $('<td/>').attr({'id': id + "7", 'class':'tile'}).text(board[7]).appendTo($('#' + id + "row3"));
-      $('<td/>').attr({'id': id + "8", 'class':'tile'}).text(board[8]).appendTo($('#' + id + "row3"));
-      $('<td/>').attr({'id': id + "9", 'class':'tile'}).text(board[9]).appendTo($('#' + id + "row3"));
 
-      $('<button/>').attr({'id':'join' + id, 'class':'join'}).text("Join this game!").appendTo($('#board'));
+      for(var i = 1; i <= 7; i+=3) {
+        $('<tr/>').attr({'id': id + "row" + i}).appendTo($('#board' + id));
+        $('<td/>').attr({'id': id + (i), 'class':'tile'}).html($('<img>').attr({'src':board[i]})).appendTo($('#' + id + "row" + i));
+        $('<td/>').attr({'id': id + (i + 1), 'class':'tile'}).html($('<img>').attr({'src':board[i + 1]})).appendTo($('#' + id + "row" + i));
+        $('<td/>').attr({'id': id + (i + 2), 'class':'tile'}).html($('<img>').attr({'src':board[i + 2]})).appendTo($('#' + id + "row" + i));
+       }
 
 
+      $('<img>').attr({'src':userPhoto, 'class':'playerPhoto'}).appendTo($('#players'));
+      $('<div/>').text(board['player1']).attr({'class':'playerName'}).appendTo($('#players'));
+      $('<div/>').attr({'id':'waiting', 'class':'emptyPic playerPhoto'}).appendTo($('#players'));
+      $('<button/>').attr({'id':'join' + id, 'class':'playerName join'}).text("Join this game!").appendTo($('#players'));
+      $('<div/>').attr({'id':'player2', 'class':'playerName'}).appendTo($('#players'));
+
+      //Handle click events on 
       $('.tile').on('click', function(e) {
         e.preventDefault();
         var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
@@ -107,8 +104,9 @@ var username = null;
         player1Ref.on('value', function(snapshot) {
           var player1 = snapshot.val();
           if (player1 == username) {
-            thisGame.child(tile).set('X');
-            $('#' + id + tile).text('X');
+            thisGame.child(tile).set(userPhoto);
+            $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
+            // $('#' + id + tile).text('X');
           }
         })
 
@@ -123,9 +121,9 @@ var username = null;
 
       });
 
+      //Set second player when someone clicks 'join the game'
       $('.join').on('click', function(e) {
         e.preventDefault();
-        //var player1 = null;
 
         player1Ref.on('value', function(snapshot) {
           var player1 = snapshot.val();
@@ -135,6 +133,9 @@ var username = null;
             thisGame.child('joined').set(true);
             thisGame.child('player2').set(username);
             $('.join').css('display','none');
+            $('#waiting').css('display','none');
+            $('<img>').attr({'src':userPhoto, 'class':'playerPhoto'}).appendTo($('#players'));
+            $('<div/>').text(username).attr({'class':'playerName player2'}).appendTo($('#players'));
           }
         });
 
@@ -146,9 +147,6 @@ var username = null;
     var winner = false;
     thisGame.on('value', function(snap) {
       var board = snap.val();
-      // if ((board[1] != "") && ((board[1] == board[2]) && (board[2] == board[3])) || ((board[4] == board[5]) && (board[5] == board[6])) || ((board[7] == board[8]) && (board[8] == board[9])) || ((board[1] == board[4]) && (board[4] == board[7])) || ((board[2] == board[5]) && (board[5] == board[8])) || ((board[3] == board[6]) && (board[6] == board[9])) || ((board[1] == board[5]) && (board[5] == board[9]))|| ((board[3] == board[5]) && (board[5] == board[7])) ) {
-      //   console.log('winner!');
-      // }
 
       //Check for the 8 different winning combinations
       if ((board[1] != "") && ((board[1] == board[2]) && (board[2] == board[3]))) {
@@ -175,10 +173,6 @@ var username = null;
       }
     });
 
-  // $('').on('click', function(e) {
-  //   e.preventDefault();
-  //   console.log('clicked');
-  // });
 
 
 
