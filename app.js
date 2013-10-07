@@ -52,7 +52,7 @@ var username = null;
           e.preventDefault();
           var gameName = $('#gameName').val();
           $('#gameName').val('');
-          var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName});
+          var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName, "winner": false});
           $('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name()}).text(gameName).appendTo($('#games'));
           var gameId = game.name();
 
@@ -97,6 +97,7 @@ var username = null;
 
       $('<button/>').attr({'id':'join' + id, 'class':'join'}).text("Join this game!").appendTo($('#board'));
 
+
       $('.tile').on('click', function(e) {
         e.preventDefault();
         var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
@@ -139,6 +140,39 @@ var username = null;
 
       })
 
+    });
+
+    //Determining a winner
+    var winner = false;
+    thisGame.on('value', function(snap) {
+      var board = snap.val();
+      // if ((board[1] != "") && ((board[1] == board[2]) && (board[2] == board[3])) || ((board[4] == board[5]) && (board[5] == board[6])) || ((board[7] == board[8]) && (board[8] == board[9])) || ((board[1] == board[4]) && (board[4] == board[7])) || ((board[2] == board[5]) && (board[5] == board[8])) || ((board[3] == board[6]) && (board[6] == board[9])) || ((board[1] == board[5]) && (board[5] == board[9]))|| ((board[3] == board[5]) && (board[5] == board[7])) ) {
+      //   console.log('winner!');
+      // }
+
+      //Check for the 8 different winning combinations
+      if ((board[1] != "") && ((board[1] == board[2]) && (board[2] == board[3]))) {
+        winner = true;
+      } else if ((board[4] != "") && ((board[4] == board[5]) && (board[5] == board[6]))) {
+        winner = true;
+      } else if ((board[7] != "") && ((board[7] == board[8]) && (board[8] == board[9]))) {
+        winner = true;
+      } else if ((board[1] != "") && ((board[1] == board[4]) && (board[4] == board[7]))) {
+        winner = true;
+      } else if ((board[2] != "") && ((board[2] == board[5]) && (board[5] == board[8]))) {
+        winner = true;
+      } else if ((board[3] != "") && ((board[3] == board[6]) && (board[6] == board[9]))) {
+        winner = true;
+      } else if ((board[1] != "") && ((board[1] == board[5]) && (board[5] == board[9]))) {
+        winner = true;
+      } else if ((board[3] != "") && ((board[3] == board[5]) && (board[5] == board[7]))) {
+        winner = true;
+      }
+
+      if (winner == true) {
+        $('<div/>').attr({'class':'winner'}).text(username + ' wins!').appendTo($('#board'));
+        thisGame.child('winner').set(username);
+      }
     });
 
   // $('').on('click', function(e) {

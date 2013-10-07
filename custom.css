@@ -3,3 +3,8 @@ table td {
 	margin: 5px;
 	border: 1px solid black;
 }
+
+.winner {
+	background-color: #FF83FA;
+	display: inline-block;
+}
