@@ -1,5 +1,9 @@
 /*Index Page*/
 
+#pageTitle {
+	text-align: center;
+}
+
 /*Board Page*/
 
 table td {
