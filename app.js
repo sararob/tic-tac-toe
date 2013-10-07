@@ -50,7 +50,7 @@ var username = null;
    $('#new-game').click(function (e) {
         if (username != null) {
           e.preventDefault();
-          var game = gameRef.push({"player1": username, "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0, "joined": false});
+          var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false});
           $('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name()}).text(game.name()).appendTo($('#games'));
           var gameId = game.name();
 
@@ -74,6 +74,8 @@ var username = null;
     thisGame.once('value', function(snapshot) {
       var board = snapshot.val();
 
+      player1Ref = thisGame.child('player1');
+      player2Ref = thisGame.child('player2');
 
       //Create board
       $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
@@ -86,9 +88,9 @@ var username = null;
       $('<td/>').attr({'id': id + "5", 'class':'tile'}).text(board[5]).appendTo($('#' + id + "row2"));
       $('<td/>').attr({'id': id + "6", 'class':'tile'}).text(board[6]).appendTo($('#' + id + "row2"));
       $('<tr/>').attr({'id': id + "row3"}).appendTo($('#board' + id));
-      $('<td/>').attr({'id': id + "7", 'class':'tile'}).text(board[1]).appendTo($('#' + id + "row3"));
-      $('<td/>').attr({'id': id + "8", 'class':'tile'}).text(board[1]).appendTo($('#' + id + "row3"));
-      $('<td/>').attr({'id': id + "9", 'class':'tile'}).text(board[1]).appendTo($('#' + id + "row3"));
+      $('<td/>').attr({'id': id + "7", 'class':'tile'}).text(board[7]).appendTo($('#' + id + "row3"));
+      $('<td/>').attr({'id': id + "8", 'class':'tile'}).text(board[8]).appendTo($('#' + id + "row3"));
+      $('<td/>').attr({'id': id + "9", 'class':'tile'}).text(board[9]).appendTo($('#' + id + "row3"));
 
       $('<button/>').attr({'id':'join' + id, 'class':'join'}).text("Join this game!").appendTo($('#board'));
 
@@ -96,13 +98,31 @@ var username = null;
         e.preventDefault();
         var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
         console.log(tile);
-        thisGame.child(tile).set('X');
+
+        //Get player info and set moves
+        player1Ref.on('value', function(snapshot) {
+          var player1 = snapshot.val();
+          if (player1 == username) {
+            thisGame.child(tile).set('X');
+            $('#' + id + tile).text('X');
+          }
+        })
+
+        player2Ref.on('value', function(snapshot) {
+          var player2 = snapshot.val();
+          if (player2 == username) {
+            thisGame.child(tile).set('O');
+            $('#' + id + tile).text('O');
+          }
+        })
+
+
       });
 
       $('.join').on('click', function(e) {
         e.preventDefault();
         //var player1 = null;
-        player1Ref = thisGame.child('player1');
+
         player1Ref.on('value', function(snapshot) {
           var player1 = snapshot.val();
           if (player1 == username) {
