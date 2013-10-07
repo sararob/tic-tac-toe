@@ -53,7 +53,7 @@ var username = null;
           var gameName = $('#gameName').val();
           $('#gameName').val('');
           var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName, "winner": false});
-          $('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name()}).text(gameName).appendTo($('#games'));
+          $('<a>').attr({'href':'sararob.github.io/game.html?gameId=' + game.name(), 'id':game.name()}).text(gameName).appendTo($('#games'));
           var gameId = game.name();
 
           var currentGameRef = gameRef.child(gameId);
