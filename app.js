@@ -9,13 +9,10 @@ var userPhoto = null;
         if (error) {
             //an error occurred while attempting login
             console.log(error);
-
         } else if (user) {
             //user authenticated with Firebase
-            console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
             username = user.displayName;
             userPhoto = "http://graph.facebook.com/" + user.id + "/picture";
-            console.log(userPhoto);
             $('<div/>').text("Signed in as ").attr({'class':'button button-primary button-rounded button-large'}).append(
                 $('<a>').attr({'href': 'https://facebook.com/' + user.id, 'class': 'facebookLink', 'target': '_blank'}).text(username)
                 ).appendTo($('#signed-in'));
@@ -51,14 +48,10 @@ var userPhoto = null;
           var gameName = $('#gameName').val();
           $('#gameName').val('');
           var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName, "winner": false});
-          //$('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name(), 'class': 'gameLink'}).text(gameName).prependTo($('#currentGames'));
-          var gameId = game.name();
-          gameRef.child(gameId).child('gameId').set(gameId);
-          var currentGameRef = gameRef.child(gameId);
+          var currentGameRef = gameRef.child(game.name());
         } else {
           alert("You must sign in with Facebook to create a game!");
         }
-
    });
 
  //INDIVIDUAL GAME PAGE
@@ -106,7 +99,6 @@ var userPhoto = null;
         if (player1 == username) {
           thisGame.child(tile).set(userPhoto);
           $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
-          // $('#' + id + tile).text('X');
         }
       })
 
