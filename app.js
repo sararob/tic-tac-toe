@@ -48,7 +48,6 @@ var userPhoto = null;
           var gameName = $('#gameName').val();
           $('#gameName').val('');
           var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName, "winner": false});
-          var currentGameRef = gameRef.child(game.name());
         } else {
           alert("You must sign in with Facebook to create a game!");
         }
