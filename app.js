@@ -50,8 +50,10 @@ var username = null;
    $('#new-game').click(function (e) {
         if (username != null) {
           e.preventDefault();
-          var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false});
-          $('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name()}).text(game.name()).appendTo($('#games'));
+          var gameName = $('#gameName').val();
+          $('#gameName').val('');
+          var game = gameRef.push({"player1": username, "1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"", "joined": false, "name":gameName});
+          $('<a>').attr({'href':'/game.html?gameId=' + game.name(), 'id':game.name()}).text(gameName).appendTo($('#games'));
           var gameId = game.name();
 
           var currentGameRef = gameRef.child(gameId);
@@ -78,6 +80,7 @@ var username = null;
       player2Ref = thisGame.child('player2');
 
       //Create board
+      $('<div/>').text(board['name']).appendTo($('#gameTitle'));
       $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
       $('<tr/>').attr({'id': id + "row1"}).appendTo($('#board' + id));
       $('<td/>').attr({'id': id + "1", 'class':'tile'}).text(board[1]).appendTo($('#' + id + "row1"));
