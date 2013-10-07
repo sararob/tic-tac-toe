@@ -40,7 +40,7 @@ var userPhoto = null;
    //List all games
    gameRef.on('child_added', function(e) {
     var game = e.val();
-    $('<a>').attr({'href':'/game.html?gameId=' + e.name(), 'id':game['gameId'], 'class': 'gameLink'}).text(game['name']).appendTo($('#currentGames'));  
+    $('<a>').attr({'href': document.URL + 'game.html?gameId=' + e.name(), 'id':game['gameId'], 'class': 'gameLink'}).text(game['name']).appendTo($('#currentGames'));  
    })
 
    //Create new game
