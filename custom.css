@@ -1,7 +1,16 @@
+body {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
 /*Index Page*/
 
 #pageTitle {
 	text-align: center;
+}
+
+#gameName {
+	height: 30px;
+	font-size: 15px;
 }
 
 /*Board Page*/
