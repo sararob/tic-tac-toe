@@ -90,7 +90,6 @@ var userPhoto = null;
     $('.tile').on('click', function(e) {
       e.preventDefault();
       var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
-      console.log(tile);
 
       //Get player info and update moves in Firebase
       player1Ref.on('value', function(snapshot) {
