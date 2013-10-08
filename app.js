@@ -1,4 +1,4 @@
-//Create Firebase references
+//Create Firebase references and auth variables
 var rootRef = new Firebase("fb-tic-tac-toe.firebaseio.com/");
 var gameRef = rootRef.child('games');
 var username = null;
@@ -104,8 +104,8 @@ var userPhoto = null;
       player2Ref.on('value', function(snapshot) {
         var player2 = snapshot.val();
         if (player2 == username) {
-          thisGame.child(tile).set('O');
-          $('#' + id + tile).text('O');
+          thisGame.child(tile).set(userPhoto);
+          $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
         }
       })
     });
@@ -113,7 +113,6 @@ var userPhoto = null;
     //Set second player when someone clicks 'join the game'
     $('.join').on('click', function(e) {
       e.preventDefault();
-
       player1Ref.on('value', function(snapshot) {
         var player1 = snapshot.val();
         if (player1 == username) {
