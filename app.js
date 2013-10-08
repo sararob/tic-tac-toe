@@ -67,8 +67,8 @@ var userPhoto = null;
   var thisGame = gameRef.child(id);
   thisGame.once('value', function(snapshot) {
     var board = snapshot.val();
-    player1Ref = thisGame.child('player1');
-    player2Ref = thisGame.child('player2');
+    var player1Ref = thisGame.child('player1');
+    var player2Ref = thisGame.child('player2');
 
     $('<div/>').text(board['name']).appendTo($('#gameTitle'));
     $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
@@ -86,28 +86,7 @@ var userPhoto = null;
     $('<button/>').attr({'id':'join' + id, 'class':'playerName join'}).text("Join this game!").appendTo($('#players'));
     $('<div/>').attr({'id':'player2', 'class':'playerName'}).appendTo($('#players'));
 
-    //Handle click events on game squares
-    $('.tile').on('click', function(e) {
-      e.preventDefault();
-      var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
 
-      //Get player info and update moves in Firebase
-      player1Ref.on('value', function(snapshot) {
-        var player1 = snapshot.val();
-        if (player1 == username) {
-          thisGame.child(tile).set(userPhoto);
-          $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
-        }
-      })
-
-      player2Ref.on('value', function(snapshot) {
-        var player2 = snapshot.val();
-        if (player2 == username) {
-          thisGame.child(tile).set(userPhoto);
-          $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
-        }
-      })
-    });
 
     //Set second player when someone clicks 'join the game'
     $('.join').on('click', function(e) {
@@ -130,31 +109,73 @@ var userPhoto = null;
     })
   });
 
+  //Handle click events on game squares
+  thisGame.on('value', function(snapshot) {
+    var player1Ref = thisGame.child('player1');
+    var player2Ref = thisGame.child('player2');
+
+
+    var turn = "player1"; //this flag doesn't work if you refresh the page
+
+    $('.tile').on('click', function(e) {
+      if (username == null) {
+        alert("You must be signed in to play!");
+      } else {
+      e.preventDefault();
+      var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
+
+      //Get player info and update moves in Firebase
+      player1Ref.on('value', function(snapshot) {
+        var player1 = snapshot.val();
+        if ((player1 == username) && (turn == "player1")) {
+          thisGame.child(tile).set(userPhoto);
+          $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
+          turn = "player2";
+        }
+      })
+
+      player2Ref.on('value', function(snapshot) {
+        var player2 = snapshot.val();
+        if ((player2 == username) && (turn == "player2")) {
+          thisGame.child(tile).set(userPhoto);
+          $('<img>').attr({'src':userPhoto}).appendTo($('#' + id + tile));
+          turn = "player1";
+        }
+      })
+    }
+    })
+
+  });
+
   //Check for a winner
   var winner = false;
-  thisGame.on('value', function(snap) {
+  var checkWinner = thisGame.on('value', function(snap) {
     var board = snap.val();
 
-    if ((board[1] != "") && ((board[1] == board[2]) && (board[2] == board[3]))) {
-      winner = true;
-    } else if ((board[4] != "") && ((board[4] == board[5]) && (board[5] == board[6]))) {
-      winner = true;
-    } else if ((board[7] != "") && ((board[7] == board[8]) && (board[8] == board[9]))) {
-      winner = true;
-    } else if ((board[1] != "") && ((board[1] == board[4]) && (board[4] == board[7]))) {
-      winner = true;
-    } else if ((board[2] != "") && ((board[2] == board[5]) && (board[5] == board[8]))) {
-      winner = true;
-    } else if ((board[3] != "") && ((board[3] == board[6]) && (board[6] == board[9]))) {
-      winner = true;
-    } else if ((board[1] != "") && ((board[1] == board[5]) && (board[5] == board[9]))) {
+    //Check horizontal
+    for (var i = 1; i <= 7; i+=3) { //i can't figure out how to do this without doing this terrible for loop
+      if ((board[i] != "") && ((board[i] == board[i + 1]) && (board[i + 1] == board[i + 2]))) {
+        winner = true;
+      } 
+    } 
+
+
+    //Check vertical
+    for (var i = 1; i <= 3; i++) {
+      if ((board[i] != "") && ((board[i] == board[i + 3]) && (board[i + 3] == board[i + 6]))) {
+        winner = true;
+      } 
+    }
+
+    //Check diagonal
+    if ((board[1] != "") && ((board[1] == board[5]) && (board[5] == board[9]))) {
       winner = true;
     } else if ((board[3] != "") && ((board[3] == board[5]) && (board[5] == board[7]))) {
       winner = true;
     }
 
     if (winner == true) {
-      $('<div/>').attr({'class':'winner'}).text(username + ' wins!').appendTo($('#board'));
-      thisGame.child('winner').set(username);
+      // $('<div/>').attr({'class':'winner'}).text(username + ' wins!').appendTo($('#board'));
+      // thisGame.child('winner').set(username);
     }
   });
