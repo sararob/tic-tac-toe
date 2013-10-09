@@ -93,7 +93,7 @@ function setupGame() {
       });
       currentPlayer = 'player2';
     } else {
-      alert("This game is full!");
+      //alert("This game is full!");
     }
 
     //Create the game title and board
@@ -118,6 +118,7 @@ function setupGame() {
       } else {
         var tile = e.currentTarget.id[e.currentTarget.id.length - 1]; //Get the tile number of the move
         thisGame.child(tile).set(userPhoto);
+        thisGame.child('lastMove').set(username); //Keep track of last played move for when we call checkWinner
         if (currentPlayer == 'player1') { //Switch currentPlayer
           thisGame.child('currentPlayer').set('player2');
         } else {
@@ -140,13 +141,18 @@ function setupGame() {
       $('<div/>').text(board.player2.name).attr({'class':'playerName'}).appendTo($('#playerNames'));
     }
 
+    if (board.currentPlayer == "player1") {
+      return;
+    }
+
     //TODO: figure out why this is happening 3 times
     var alertWinner = false;
     if ((board.winner != false) && (alertWinner == false)) {
-      alert(board.winner + " won the game!");
+      alert(board.lastMove + " won the game!");
       alertWinner = true;
       return;
     }
+
     //Update the board with pictures for each person's move
     for (var i = 1; i < 10; i++) {
       $('#' + id + i).html("");
@@ -156,15 +162,15 @@ function setupGame() {
     }
 
     //Check for horizontal winning patterns
-    for (var i = 1; i <= 7; i+=3) { 
-      if ((board[i] != "") && ((board[i] == board[i + 1]) && (board[i + 1] == board[i + 2]))) {
+    for (var row = 1; row <= 7; row+=3) { 
+      if ((board[row] != "") && ((board[row] == board[row + 1]) && (board[row + 1] == board[row + 2]))) {
         winner = true;
       } 
     } 
 
     //Check vertical winning patterns
-    for (var i = 1; i <= 3; i++) {
-      if ((board[i] != "") && ((board[i] == board[i + 3]) && (board[i + 3] == board[i + 6]))) {
+    for (var column = 1; column <= 3; column++) {
+      if ((board[column] != "") && ((board[column] == board[column + 3]) && (board[column + 3] == board[column + 6]))) {
         winner = true;
       } 
     }
@@ -177,8 +183,7 @@ function setupGame() {
     }
     //Update the winner in Firebase
     if (winner == true) {
-      var winnerName = board[board.currentPlayer].name;
-      thisGame.child('winner').set(winnerName);
+      thisGame.child('winner').set(board.lastMove);
       return;
     }
   }
