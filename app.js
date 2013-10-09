@@ -128,7 +128,6 @@ function setupGame() {
       }
     });
   }
-
   // Check for a winner
   var winner = false;  
   function checkWinner(board) {
@@ -142,12 +141,15 @@ function setupGame() {
       $('<div/>').text(board.player2.name).attr({'class':'playerName'}).appendTo($('#playerNames'));
     }
 
-    alertWinner = false;
+
     if (board.currentPlayer == "player1") {
+      if (board.winner) {
+        alert(board.winner + " won the game!");
+      }
       return;
     } else if (board.winner != false) { //TODO: figure out why this executes twice if player2 wins
-      if (alertWinner == false) {
-        alertWinner = true;
+      if (!winner) {
+        winner = true;
         alert(board.winner + " won the game!");
         return;
       }
