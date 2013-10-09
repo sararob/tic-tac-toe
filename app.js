@@ -67,8 +67,8 @@ if (id != "null") {
   setupGame();
 }
 
+//Set up the board and handle click events
 function setupGame() {
-  //Create board for each game
   var currentPlayer = "";
   var thisGame = gameRef.child(id);
   var currentBoard = null;
@@ -80,30 +80,27 @@ function setupGame() {
     }
     firstVal = false;
 
-    console.log("I'm called!!");
-    if (!board.player1 && currentPlayer == "") {
+    if (!board.player1 && currentPlayer == "") { //Set player 1 as first person to enter the game
       thisGame.child('player1').set({
         name: username,
         photo: userPhoto
       });
       currentPlayer = 'player1';
-    } else if (!board.player2 && currentPlayer == "") {
+    } else if (!board.player2 && currentPlayer == "") { //Assign player 2 to the second person to enter the room
       thisGame.child('player2').set({
         name: username,
         photo: userPhoto
       });
       currentPlayer = 'player2';
     } else {
-      // 3rd person.
-      return;
+      alert("This game is full!");
     }
 
-    var player1Ref = thisGame.child('player1');
-    var player2Ref = thisGame.child('player2');
-
+    //Create the game title and board
     $('<div/>').text(board['name']).appendTo($('#gameTitle'));
     $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
 
+    //TODO fix this for loop
     for(var i = 1; i <= 7; i+=3) {
       $('<tr/>').attr({'id': id + "row" + i}).appendTo($('#board' + id));
       $('<td/>').attr({'id': id + (i), 'class':'tile'}).html($('<img>').attr({'src':board[i]})).appendTo($('#' + id + "row" + i));
@@ -111,23 +108,17 @@ function setupGame() {
       $('<td/>').attr({'id': id + (i + 2), 'class':'tile'}).html($('<img>').attr({'src':board[i + 2]})).appendTo($('#' + id + "row" + i));
     }
 
-    //$('<div/>').attr({'id':'waiting', 'class':'emptyPic playerPhoto'}).appendTo($('#players'));
-    //$('<button/>').attr({'id':'join' + id, 'class':'playerName join'}).text("Join this game!").appendTo($('#players'));
-    //$('<div/>').attr({'id':'player2', 'class':'playerName'}).appendTo($('#players'));
-
-
+    //Handle click events on tiles
     $('.tile').on('click', function(e) {
       e.preventDefault();
       if (username == null) {
         alert("You must be signed in to play!");
-      } else if (currentPlayer != currentBoard.currentPlayer) {
-        console.log(currentBoard.currentPlayer);
-        console.log(currentPlayer);
+      } else if (currentPlayer != currentBoard.currentPlayer) { //Only allow the current player to move
         alert("Not your turn!");
       } else {
-        var tile = e.currentTarget.id[e.currentTarget.id.length - 1];
+        var tile = e.currentTarget.id[e.currentTarget.id.length - 1]; //Get the tile number of the move
         thisGame.child(tile).set(userPhoto);
-        if (currentPlayer == 'player1') {
+        if (currentPlayer == 'player1') { //Switch currentPlayer
           thisGame.child('currentPlayer').set('player2');
         } else {
           thisGame.child('currentPlayer').set('player1');
@@ -140,7 +131,7 @@ function setupGame() {
   var winner = false;  
   function checkWinner(board) {
     $("#playerNames").html("");
-    if (board.player1) {
+    if (board.player1) { //Add player's photos and names to board
       $('<img>').attr({'src':board.player1.photo, 'class':'playerPhoto'}).appendTo($('#playerNames'));
       $('<div/>').text(board.player1.name).attr({'class':'playerName'}).appendTo($('#playerNames'));
     }
@@ -149,11 +140,14 @@ function setupGame() {
       $('<div/>').text(board.player2.name).attr({'class':'playerName'}).appendTo($('#playerNames'));
     }
 
-    if (board.winner != false) {
+    //TODO: figure out why this is happening 3 times
+    var alertWinner = false;
+    if ((board.winner != false) && (alertWinner == false)) {
       alert(board.winner + " won the game!");
+      alertWinner = true;
       return;
     }
-
+    //Update the board with pictures for each person's move
     for (var i = 1; i < 10; i++) {
       $('#' + id + i).html("");
       if (board[i] != "") {
@@ -161,37 +155,34 @@ function setupGame() {
       }
     }
 
-    if (currentPlayer != "player1") {
-      return;
-    }
-
-    //Check horizontal
-    for (var i = 1; i <= 7; i+=3) { //i can't figure out how to do this without doing this terrible for loop
+    //Check for horizontal winning patterns
+    for (var i = 1; i <= 7; i+=3) { 
       if ((board[i] != "") && ((board[i] == board[i + 1]) && (board[i + 1] == board[i + 2]))) {
         winner = true;
       } 
     } 
 
-
-    //Check vertical
+    //Check vertical winning patterns
     for (var i = 1; i <= 3; i++) {
       if ((board[i] != "") && ((board[i] == board[i + 3]) && (board[i + 3] == board[i + 6]))) {
         winner = true;
       } 
     }
 
-    //Check diagonal
+    //Check diagonal winning patterns
     if ((board[1] != "") && ((board[1] == board[5]) && (board[5] == board[9]))) {
       winner = true;
     } else if ((board[3] != "") && ((board[3] == board[5]) && (board[5] == board[7]))) {
       winner = true;
     }
-
+    //Update the winner in Firebase
     if (winner == true) {
-      thisGame.child('winner').set(username);
+      var winnerName = board[board.currentPlayer].name;
+      thisGame.child('winner').set(winnerName);
+      return;
     }
   }
-
+  //Game page logic
   thisGame.on('value', function(snap) {
     currentBoard = snap.val();
     displayBoard(currentBoard);
