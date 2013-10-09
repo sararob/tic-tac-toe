@@ -103,9 +103,9 @@ function setupGame() {
     //TODO fix this for loop
     for(var i = 1; i <= 7; i+=3) {
       $('<tr/>').attr({'id': id + "row" + i}).appendTo($('#board' + id));
-      $('<td/>').attr({'id': id + (i), 'class':'tile'}).html($('<img>').attr({'src':board[i]})).appendTo($('#' + id + "row" + i));
-      $('<td/>').attr({'id': id + (i + 1), 'class':'tile'}).html($('<img>').attr({'src':board[i + 1]})).appendTo($('#' + id + "row" + i));
-      $('<td/>').attr({'id': id + (i + 2), 'class':'tile'}).html($('<img>').attr({'src':board[i + 2]})).appendTo($('#' + id + "row" + i));
+      $('<td/>').attr({'id': id + (i), 'class':'tile'}).html($('<img>').attr({'src':board[i].photo})).appendTo($('#' + id + "row" + i));
+      $('<td/>').attr({'id': id + (i + 1), 'class':'tile'}).html($('<img>').attr({'src':board[i + 1].photo})).appendTo($('#' + id + "row" + i));
+      $('<td/>').attr({'id': id + (i + 2), 'class':'tile'}).html($('<img>').attr({'src':board[i + 2].photo})).appendTo($('#' + id + "row" + i));
     }
 
     //Handle click events on tiles
@@ -117,8 +117,10 @@ function setupGame() {
         alert("Not your turn!");
       } else {
         var tile = e.currentTarget.id[e.currentTarget.id.length - 1]; //Get the tile number of the move
-        thisGame.child(tile).set(userPhoto);
-        thisGame.child('lastMove').set(username); //Keep track of last played move for when we call checkWinner
+        thisGame.child(tile).set({
+          name: username,
+          photo: userPhoto
+        });
         if (currentPlayer == 'player1') { //Switch currentPlayer
           thisGame.child('currentPlayer').set('player2');
         } else {
@@ -145,11 +147,8 @@ function setupGame() {
       return;
     }
 
-    //TODO: figure out why this is happening 3 times
-    var alertWinner = false;
-    if ((board.winner != false) && (alertWinner == false)) {
-      alert(board.lastMove + " won the game!");
-      alertWinner = true;
+    if (board.winner != false) {
+      alert(board.winner + " won the game!");
       return;
     }
 
@@ -157,34 +156,29 @@ function setupGame() {
     for (var i = 1; i < 10; i++) {
       $('#' + id + i).html("");
       if (board[i] != "") {
-        $('<img>').attr({'src':board[i]}).appendTo($('#' + id + i));
+        $('<img>').attr({'src':board[i].photo}).appendTo($('#' + id + i));
       }
     }
 
     //Check for horizontal winning patterns
     for (var row = 1; row <= 7; row+=3) { 
-      if ((board[row] != "") && ((board[row] == board[row + 1]) && (board[row + 1] == board[row + 2]))) {
-        winner = true;
+      if ((board[row] != "") && ((board[row].name == board[row + 1].name) && (board[row + 1].name == board[row + 2].name))) {
+        thisGame.child('winner').set(board[row].name);
       } 
     } 
 
     //Check vertical winning patterns
     for (var column = 1; column <= 3; column++) {
-      if ((board[column] != "") && ((board[column] == board[column + 3]) && (board[column + 3] == board[column + 6]))) {
-        winner = true;
+      if ((board[column] != "") && ((board[column].name == board[column + 3].name) && (board[column + 3].name == board[column + 6].name))) {
+        thisGame.child('winner').set(board[column].name);
       } 
     }
 
     //Check diagonal winning patterns
-    if ((board[1] != "") && ((board[1] == board[5]) && (board[5] == board[9]))) {
-      winner = true;
-    } else if ((board[3] != "") && ((board[3] == board[5]) && (board[5] == board[7]))) {
-      winner = true;
-    }
-    //Update the winner in Firebase
-    if (winner == true) {
-      thisGame.child('winner').set(board.lastMove);
-      return;
+    if ((board[1] != "") && ((board[1].name == board[5].name) && (board[5].name == board[9].name))) {
+      thisGame.child('winner').set(board[1].name);
+    } else if ((board[3] != "") && ((board[3].name == board[5].name) && (board[5].name == board[7].name))) {
+      thisGame.child('winner').set(board[3].name);
     }
   }
   //Game page logic

@@ -36,23 +36,6 @@ table td {
 	height: 50px;
 }
 
-#players {
-	width: 400px;
-}
-
-.playerName {
-	display: inline-block;
-	float: right;
-	margin: 15px 130px 0px 0px;
-}
-
-.emptyPic {
-	border: 1px solid black;
-	text-align: center;
-	width: 48px;
-	height: 48px;
-}
-
 .playerPhoto {
 	margin: 5px;
 }
