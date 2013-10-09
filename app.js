@@ -142,10 +142,15 @@ function setupGame() {
       $('<div/>').text(board.player2.name).attr({'class':'playerName'}).appendTo($('#playerNames'));
     }
 
+    alertWinner = false;
     if (board.currentPlayer == "player1") {
       return;
     } else if (board.winner != false) { //TODO: figure out why this executes twice if player2 wins
-      alert(board.winner + " won the game!");
+      if (alertWinner == false) {
+        alertWinner = true;
+        alert(board.winner + " won the game!");
+        return;
+      }
       return;
     }
 
