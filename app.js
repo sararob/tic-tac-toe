@@ -93,14 +93,13 @@ function setupGame() {
       });
       currentPlayer = 'player2';
     } else {
-      //alert("This game is full!");
     }
 
     //Create the game title and board
     $('<div/>').text(board['name']).appendTo($('#gameTitle'));
     $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
 
-    //TODO fix this for loop
+    //TODO fix this for loop so i'm incrementing i by 1 and using another variable to keep track of the
     for(var i = 1; i <= 7; i+=3) {
       $('<tr/>').attr({'id': id + "row" + i}).appendTo($('#board' + id));
       $('<td/>').attr({'id': id + (i), 'class':'tile'}).html($('<img>').attr({'src':board[i].photo})).appendTo($('#' + id + "row" + i));
@@ -145,9 +144,7 @@ function setupGame() {
 
     if (board.currentPlayer == "player1") {
       return;
-    }
-
-    if (board.winner != false) {
+    } else if (board.winner != false) { //TODO: figure out why this executes twice if player2 wins
       alert(board.winner + " won the game!");
       return;
     }
@@ -181,6 +178,7 @@ function setupGame() {
       thisGame.child('winner').set(board[3].name);
     }
   }
+
   //Game page logic
   thisGame.on('value', function(snap) {
     currentBoard = snap.val();
