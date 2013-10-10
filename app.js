@@ -99,7 +99,6 @@ function setupGame() {
     $('<div/>').text(board['name']).appendTo($('#gameTitle'));
     $('<table/>').attr({'id':'board' + id, 'class':'board'}).appendTo('#board');
 
-    //TODO fix this for loop so i'm incrementing i by 1 and using another variable to keep track of the
     for(var i = 1; i <= 7; i+=3) {
       $('<tr/>').attr({'id': id + "row" + i}).appendTo($('#board' + id));
       $('<td/>').attr({'id': id + (i), 'class':'tile'}).html($('<img>').attr({'src':board[i].photo})).appendTo($('#' + id + "row" + i));
@@ -141,13 +140,13 @@ function setupGame() {
       $('<div/>').text(board.player2.name).attr({'class':'playerName'}).appendTo($('#playerNames'));
     }
 
-
+    //Alert both players when there is a winner
     if (board.currentPlayer == "player1") {
       if (board.winner) {
         alert(board.winner + " won the game!");
       }
       return;
-    } else if (board.winner != false) { //TODO: figure out why this executes twice if player2 wins
+    } else if (board.winner != false) {
       if (!winner) {
         winner = true;
         alert(board.winner + " won the game!");
